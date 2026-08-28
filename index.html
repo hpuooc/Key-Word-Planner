@@ -1,0 +1,535 @@
+<title>Keyword Planner</title>
+<style>
+:root{
+  --bg:#faf9f7;--card:#fff;--soft:#f4f2ee;--line:#e4dfd6;--line2:#cbc4b7;
+  --ink:#1b1917;--ink2:#4d4841;--ink3:#7c766d;
+  --pur:#3a1f5c;--pur2:#5b3a86;--purs:#f0eaf7;
+  --grn:#245c3d;--grns:#e7f3eb;--red:#8c2b1e;--reds:#fceae7;
+  --gold:#8a6d1f;--golds:#f8f1da;--blu:#1c4a7a;--blus:#e9f1fb;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121110;--card:#1b1a18;--soft:#232120;--line:#332f2c;--line2:#4b453f;
+  --ink:#f1ede7;--ink2:#c3bdb4;--ink3:#8e877e;
+  --pur:#c6abe9;--pur2:#ab8ad6;--purs:#251a33;
+  --grn:#90d1ab;--grns:#152a1e;--red:#e99d91;--reds:#331a16;
+  --gold:#dabd6b;--golds:#2e2716;--blu:#90bde9;--blus:#16232e;}}
+:root[data-theme="dark"]{
+  --bg:#121110;--card:#1b1a18;--soft:#232120;--line:#332f2c;--line2:#4b453f;
+  --ink:#f1ede7;--ink2:#c3bdb4;--ink3:#8e877e;
+  --pur:#c6abe9;--pur2:#ab8ad6;--purs:#251a33;
+  --grn:#90d1ab;--grns:#152a1e;--red:#e99d91;--reds:#331a16;
+  --gold:#dabd6b;--golds:#2e2716;--blu:#90bde9;--blus:#16232e;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.w{max-width:1500px;margin:0 auto;padding:0 26px 90px}
+header{padding:42px 0 22px}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:clamp(28px,4.5vw,40px);line-height:1.08;
+  margin:0 0 14px;letter-spacing:-.025em;font-weight:600;color:var(--ink)}
+.sub{font-size:16px;color:var(--ink2);max-width:88ch;margin:0;line-height:1.55}
+
+/* cart */
+.cart{position:sticky;top:8px;z-index:50;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:16px 20px;margin:22px 0 26px;backdrop-filter:saturate(1.2);box-shadow:0 4px 18px rgba(0,0,0,.07)}
+:root[data-theme="dark"] .cart,
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .cart{box-shadow:0 4px 18px rgba(0,0,0,.4)}}
+.cartTop{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;justify-content:space-between}
+.stat .v{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1;display:block;color:var(--pur2)}
+.stat .t{font-size:11px;color:var(--ink3);margin-top:6px;display:block;text-transform:uppercase;letter-spacing:.06em}
+.stat.money .v{font-size:32px}
+.bar{height:9px;background:var(--soft);border-radius:99px;overflow:hidden;margin:14px 0 6px;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--pur2);transition:width .18s ease}
+.bar i.over{background:var(--red)}
+.barLbl{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);font-family:var(--mono)}
+.warn{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:13px;display:none}
+.warn.on{display:block}
+.warn.brand{background:var(--golds);color:var(--gold);border:1px solid currentColor}
+.warn.over{background:var(--reds);color:var(--red);border:1px solid currentColor}
+.bidRow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:15px;padding-top:13px;border-top:1px solid var(--line)}
+.bidLbl{font-size:12px;font-weight:600;color:var(--ink2)}
+.bidBtns{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.bidBtn{border:none;border-radius:0;padding:6px 13px;font-size:12.5px;background:var(--card);color:var(--ink2)}
+.bidBtn+.bidBtn{border-left:1px solid var(--line2)}
+.bidBtn.on{background:var(--pur);color:#fff}
+:root[data-theme="dark"] .bidBtn.on{background:var(--pur2);color:#13111a}
+.bidBtn:hover:not(.on){background:var(--soft);color:var(--pur2)}
+.bidNote{font-size:11.5px;color:var(--ink3);max-width:46ch;line-height:1.45}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px;padding-top:13px;border-top:1px solid var(--line)}
+button{font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 15px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line2);background:var(--card);color:var(--ink);transition:.12s}
+button:hover{border-color:var(--pur2);color:var(--pur2)}
+button.pri{background:var(--pur);border-color:var(--pur);color:#fff}
+:root[data-theme="dark"] button.pri{color:#13111a}
+button.pri:hover{opacity:.88;color:#fff}
+:root[data-theme="dark"] button.pri:hover{color:#13111a}
+
+/* table */
+h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:23px;margin:42px 0 4px;font-weight:600;color:var(--pur2);letter-spacing:-.015em}
+.chead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:8px;
+  padding-bottom:9px;border-bottom:1px solid var(--line)}
+.cmeta{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.cmeta b{color:var(--pur2)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;padding:10px 12px;background:var(--soft);font-weight:600;font-size:10.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tw table{min-width:1240px}
+tbody tr:last-child td{border-bottom:none}
+tr.on{background:var(--purs)}
+tr:hover{background:var(--soft)}
+tr.on:hover{background:var(--purs);filter:brightness(.98)}
+.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:13px;white-space:nowrap}
+.kw{font-weight:500}
+.note{font-size:11.5px;color:var(--ink3);line-height:1.4;min-width:280px;white-space:normal;overflow-wrap:normal;padding-right:18px}
+.prog{font-size:12px;white-space:normal;min-width:130px;line-height:1.3}
+.rng{display:block;font-size:10.5px;color:var(--ink3);font-weight:400;margin-top:2px;letter-spacing:-.01em}
+.prog a{color:var(--pur2);text-decoration:none;border-bottom:1px solid transparent}
+.prog a:hover{border-bottom-color:var(--pur2)}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--pur2);cursor:pointer}
+.shareCell{white-space:nowrap;min-width:86px}
+.shareIn{font-family:var(--mono);font-size:13px;width:62px;padding:5px 7px;border-radius:6px;border:1px solid var(--line2);
+  background:var(--card);color:var(--ink);text-align:center;-moz-appearance:textfield;appearance:textfield}
+.shareIn::-webkit-outer-spin-button,.shareIn::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.shareIn:focus{outline:2px solid var(--pur2);outline-offset:-1px;border-color:var(--pur2)}
+.pc{font-family:var(--mono);font-size:12px;color:var(--ink3);margin-left:3px}
+.pill{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;font-weight:600;border:1px solid currentColor;white-space:nowrap;
+  line-height:1.15;text-indent:.05em}
+.pill.lo,.pill.md,.pill.hi{min-width:66px;text-align:center}
+.pill.lo{background:var(--grns);color:var(--grn)}
+.pill.md{background:var(--golds);color:var(--gold)}
+.pill.hi{background:var(--reds);color:var(--red)}
+.pill.br{background:var(--blus);color:var(--blu)}
+.dim td{opacity:.42}
+.dim td:first-child{opacity:1}
+.aud{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:26px 28px;margin:34px 0 10px}
+.aud h2{margin:0 0 6px;font-size:25px}
+.modelNote{max-width:none;font-size:13.5px;color:var(--ink2);line-height:1.6;background:var(--soft);
+  border-left:3px solid var(--pur2);border-radius:0 8px 8px 0;padding:14px 18px;margin:0 0 22px;max-width:none}
+.aud .lede{max-width:92ch;font-size:15px;color:var(--ink2);margin:0 0 18px;max-width:78ch}
+.audGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px 30px;align-items:start}
+.audBox{min-width:0}
+.audBox h3{font-family:var(--sans);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--pur2);
+  margin:0 0 10px;font-weight:700;padding-bottom:8px;border-bottom:2px solid var(--purs)}
+.audBox table{font-size:13px;width:100%;min-width:0;table-layout:fixed}
+.audBox td{padding:6px 8px 6px 0;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+.audBox tr:last-child td{border-bottom:none}
+.audBox td.r{text-align:right;font-family:var(--sans);font-size:12px;white-space:nowrap;color:var(--pur2);
+  font-weight:600;width:112px;padding-left:8px}
+.audBox ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink2);overflow-wrap:anywhere;line-height:1.55}
+.audBox .pre{font-size:13px;color:var(--ink2);margin:0 0 11px;line-height:1.5}
+.audBox .sm{font-size:11.5px;color:var(--ink3)}
+.audBox li{margin-bottom:5px}
+.audNote{font-size:12.5px;color:var(--ink3);margin-top:14px;padding-top:12px;border-top:1px solid var(--line);line-height:1.6}
+.audNote + .audNote{margin-top:10px}
+.audNote b{color:var(--ink2)}
+.catAud{font-family:var(--sans);font-size:12.5px;color:var(--ink3);margin:10px 0 12px;line-height:1.5;max-width:96ch}
+.catAud b{color:var(--pur2);font-weight:600}
+footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--ink3);line-height:1.8}
+@media(max-width:760px){.note{display:none}.prog{display:none}.cart{position:static}
+  .cartTop{gap:16px}.stat .v{font-size:22px}.stat.money .v{font-size:26px}
+  .aud{padding:20px 18px}.audGrid{gap:22px}.w{padding:0 14px 70px}}
+
+/* ---------- ad preview (added) ---------- */
+.kwLink{color:inherit;text-decoration:none;cursor:pointer;
+  border-bottom:1px dotted var(--line2);padding-bottom:1px}
+.kwLink:hover{color:var(--pur2);border-bottom-color:var(--pur2)}
+.mdBack{position:fixed;inset:0;z-index:200;background:rgba(20,17,14,.55);backdrop-filter:blur(3px);
+  display:none;align-items:flex-start;justify-content:center;padding:34px 18px;overflow-y:auto}
+.mdBack.on{display:flex}
+.md{background:var(--card);border:1px solid var(--line);border-radius:14px;width:100%;max-width:860px;
+  box-shadow:0 18px 60px rgba(0,0,0,.35);overflow:hidden}
+.mdTop{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  padding:18px 22px;border-bottom:1px solid var(--line);background:var(--soft)}
+.mdTop .eb2{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.mdTop h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:20px;margin:5px 0 0;font-weight:600;
+  color:var(--ink);letter-spacing:-.01em}
+.mdX{border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:8px;
+  width:30px;height:30px;font-size:16px;line-height:1;padding:0;flex:none;cursor:pointer}
+.mdX:hover{border-color:var(--red);color:var(--red)}
+.mdBody{padding:22px}
+
+/* google serp mock */
+.serp{background:#fff;border:1px solid #dadce0;border-radius:12px;padding:16px 18px 22px;color:#202124;
+  font-family:arial,sans-serif;max-width:660px;margin:0 auto}
+.gTop{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.gLogo{font-family:arial,sans-serif;font-size:22px;font-weight:500;letter-spacing:-1px;flex:none}
+.gLogo .b{color:#4285f4}.gLogo .r{color:#ea4335}.gLogo .y{color:#fbbc05}.gLogo .g{color:#34a853}
+.gBar{flex:1;border:1px solid #dfe1e5;border-radius:22px;padding:8px 15px;font-size:14px;color:#202124;
+  display:flex;align-items:center;gap:9px;box-shadow:0 1px 4px rgba(32,33,36,.14)}
+.gBar .mag{margin-left:auto;flex:none;display:flex;color:#4285f4}
+.gTabs{display:flex;gap:20px;border-bottom:1px solid #ebebeb;padding-bottom:9px;margin-bottom:16px}
+.gTabs span{font-size:12.5px;color:#5f6368}
+.gTabs span.act{color:#1a73e8;border-bottom:3px solid #1a73e8;padding-bottom:9px;margin-bottom:-12px;font-weight:500}
+.adBox{margin-bottom:8px}
+.spon{font-size:14px;font-weight:700;color:#202124;margin-bottom:9px;letter-spacing:0}
+.advRow{display:flex;align-items:center;gap:11px;margin-bottom:5px}
+.fav{width:28px;height:28px;border-radius:50%;background:#fff;border:1px solid #dadce0;flex:none;
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fav img{width:20px;height:20px;object-fit:contain;display:block}
+.advName{font-size:14px;color:#202124;line-height:1.25}
+.advUrl{font-size:12px;color:#4d5156;line-height:1.25;word-break:break-all}
+.dots{margin-left:auto;color:#5f6368;font-size:15px;letter-spacing:1px;flex:none}
+.adH{display:block;font-size:20px;line-height:1.3;color:#1a0dab;margin:4px 0 3px;font-weight:400;
+  cursor:pointer;text-decoration:none}
+.adH:hover{text-decoration:underline}
+.adH .sep{color:#5f6368}
+.advLink{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit;flex:1;min-width:0}
+.advLink:hover .advName{text-decoration:underline}
+.adD{font-size:14px;line-height:1.58;color:#4d5156}
+.adLinks{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:11px}
+.adLinks a{font-size:14px;color:#1a0dab;text-decoration:none}
+.adLinks a:hover{text-decoration:underline}
+.rule{height:1px;background:#ebebeb;margin:20px 0 18px}
+/* skeleton organic results */
+.sk{background:#e8eaed;border-radius:4px}
+.skRes{margin-bottom:24px}
+.skRow{display:flex;align-items:center;gap:11px;margin-bottom:7px}
+.skDot{width:26px;height:26px;border-radius:50%;flex:none}
+.skTitle{height:15px;margin:8px 0 9px}
+.skLine{height:10px;margin-bottom:7px}
+.skNote{text-align:center;font-size:11px;color:#9aa0a6;font-family:arial,sans-serif;letter-spacing:.04em;
+  text-transform:uppercase;margin-top:2px}
+
+/* copy detail panel */
+.mdGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+@media(max-width:720px){.mdGrid{grid-template-columns:1fr}.serp{padding:14px 13px 18px}.adH{font-size:17px}}
+.mdCard{border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:var(--card)}
+.mdCard h4{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink3);margin:0 0 9px;font-weight:600}
+.mdCard ol{margin:0;padding-left:19px}
+.mdCard li{font-size:13px;color:var(--ink2);margin-bottom:6px;line-height:1.45}
+.cnt{font-family:var(--mono);font-size:10.5px;color:var(--ink3);margin-left:6px}
+.cnt.near{color:var(--gold)}
+.mdSrc{font-size:12px;color:var(--ink3);line-height:1.55}
+.mdSrc b{color:var(--ink2);font-weight:600}
+.mdSrc a,.mdCard a{color:var(--pur2);text-decoration:none;word-break:break-all}
+.mdSrc a:hover,.mdCard a:hover{text-decoration:underline}
+.mdWarn{margin-top:16px;background:var(--reds);color:var(--red);border:1px solid currentColor;
+  border-radius:9px;padding:11px 14px;font-size:13px;line-height:1.5}
+.mdWarn b{text-transform:uppercase;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  display:block;margin-bottom:4px}
+.mdFoot{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+</style>
+
+<div class="w">
+<header>
+  <div class="eb">High Point University · Paid Search</div>
+  <h1>Keyword planner</h1>
+  <p class="sub">Check the terms you want. The cart tracks spend, impressions and clicks against a $10,000 monthly budget. Type any percentage in the Share column to control how much of a term's search volume you capture. Every program term links to the High Point major it sends people to. Terms 3E already buys are not listed, so nothing here overlaps their work.</p>
+</header>
+
+<div class="cart">
+  <div class="cartTop">
+    <div class="stat money"><span class="v" id="sSpend">$0</span><span class="t">of $10,000</span></div>
+    <div class="stat"><span class="v" id="sImpr">0</span><span class="t">Impressions / month</span></div>
+    <div class="stat"><span class="v" id="sClicks">0</span><span class="t">Clicks / month</span></div>
+    <div class="stat"><span class="v" id="sCpc">$0.00</span><span class="t">Blended cost per click</span></div>
+    <div class="stat"><span class="v" id="sTerms">0</span><span class="t">Terms selected</span></div>
+  </div>
+  <div class="bar"><i id="bar" style="width:0%"></i></div>
+  <div class="barLbl"><span id="barPct">0% of budget</span><span id="barLeft">$10,000 left</span></div>
+  <div class="warn brand" id="wBrand"></div>
+  <div class="warn over" id="wOver"></div>
+  <div class="bidRow">
+    <span class="bidLbl">How fast the price climbs</span>
+    <div class="bidBtns">
+      <button class="bidBtn" data-b="2.2" onclick="setBid(2.2)">Best case</button>
+      <button class="bidBtn on" data-b="1.5" onclick="setBid(1.5)">Likely</button>
+      <button class="bidBtn" data-b="1" onclick="setBid(1)">Cautious</button>
+    </div>
+    <span class="bidNote" id="bidNote"></span>
+  </div>
+  <div class="btns">
+    <button class="pri" onclick="dl()">Download selected as CSV</button>
+    <button onclick="copyCsv()">Copy to clipboard</button>
+    <button onclick="preset('rec')">Reset to saved plan</button>
+    <button onclick="preset('none')">Clear all</button>
+    <button onclick="preset('nb')">Non-branded only</button>
+  </div>
+</div>
+
+<datalist id="shareOpts"><option value="15"><option value="25"><option value="40"><option value="55"><option value="70"><option value="90"><option value="100"></datalist>
+<div class="aud">
+  <h2>Who sees our ads</h2>
+  <p class="lede">The words we buy decide what someone is searching for. These settings decide who sees the ad. We pay more to reach the people most likely to become students, and less to reach everyone else.</p>
+  <p class="modelNote"><b>How the pricing works.</b> Google reports a range for every search, the cheapest and the most that advertisers have paid. Winning a small slice of a search is cheap. Winning most of it means outbidding everyone else, so the price climbs toward the top of that range. The planner moves the price as you move the share, and the three buttons in the cart change how steeply it climbs.</p>
+  <div class="audGrid">
+
+    <div class="audBox">
+      <h3>1. Where they live</h3>
+      <p class="pre">We pay more in the states our students actually come from. The number on the right is how much extra we pay for a click there.</p>
+      <table>
+        <tr><td>New York</td><td class="r">pay 20% more</td></tr>
+        <tr><td>New Jersey</td><td class="r">pay 20% more</td></tr>
+        <tr><td>Maryland</td><td class="r">pay 15% more</td></tr>
+        <tr><td>Pennsylvania</td><td class="r">pay 15% more</td></tr>
+        <tr><td>Massachusetts</td><td class="r">pay 10% more</td></tr>
+        <tr><td>Connecticut</td><td class="r">pay 10% more</td></tr>
+        <tr><td>Virginia and Florida</td><td class="r">pay 10% more</td></tr>
+        <tr><td>North Carolina</td><td class="r">normal price</td></tr>
+        <tr><td>Rest of the country</td><td class="r">pay 40% less</td></tr>
+      </table>
+      <p class="audNote">Only 1 in 4 of our students is from North Carolina. Almost half come from the Northeast. 3E does not do this at all. Their ads cost the same whether the person is in New Jersey or New Mexico.</p>
+    </div>
+
+    <div class="audBox">
+      <h3>2. Who they are</h3>
+      <p class="pre">Google will not let anyone aim ads at kids under 18. So we reach the parents instead.</p>
+      <table>
+        <tr><td>Parents of kids age 13 to 17</td><td class="r">pay 25% more</td></tr>
+        <tr><td>People age 18 to 24<br><span class="sm">the student</span></td><td class="r">pay 15% more</td></tr>
+        <tr><td>People age 45 to 64<br><span class="sm">the parent</span></td><td class="r">pay 15% more</td></tr>
+        <tr><td>Higher income areas</td><td class="r">pay 10% more</td></tr>
+        <tr><td>Age 25 to 44 with no kids</td><td class="r">pay 50% less</td></tr>
+        <tr><td>Age 65 and up</td><td class="r">do not show</td></tr>
+      </table>
+      <p class="audNote"><b>About income.</b> Google does not know anyone's income. It groups ZIP codes by average income and guesses from there. Our top states are already wealthy ZIP codes, so we keep this small to avoid paying the premium twice.</p>
+      <p class="audNote"><b>One rule we cannot break.</b> Google puts people it cannot identify into an "unknown age" group. Most high school students land there. We must always keep showing ads to that group. Turning it off would hide our ads from the very people we want.</p>
+    </div>
+
+    <div class="audBox">
+      <h3>3. Groups we add on top</h3>
+      <p class="pre">Google can tell us things about people beyond what they typed. We use five of those.</p>
+      <ul>
+        <li>People Google knows are <b>shopping for a college right now</b></li>
+        <li>People studying for the <b>SAT or ACT</b></li>
+        <li>People who <b>compare prices</b> before they buy, which fits our cost and scholarship ads</li>
+        <li>People who looked at <b>Elon, Quinnipiac, Marist, Campbell or Coastal Carolina</b></li>
+        <li>People who <b>already visited our site</b> and did not finish the form</li>
+      </ul>
+      <p class="audNote"><b>Watch first, then act.</b> For the first month we only watch which of these groups responds. We do not block anyone else from seeing the ad. After a month we know who is worth paying extra for, and we raise the bid on those groups.</p>
+    </div>
+
+    <div class="audBox">
+      <h3>4. When they see it</h3>
+      <p class="pre">Families look at colleges together, and that happens at night and on weekends.</p>
+      <table>
+        <tr><td>Weeknights, 6pm to 10pm</td><td class="r">pay 20% more</td></tr>
+        <tr><td>Sundays</td><td class="r">pay 20% more</td></tr>
+        <tr><td>Weekdays, 9am to 3pm</td><td class="r">pay 20% less</td></tr>
+        <tr><td>Laptops</td><td class="r">pay 15% more</td></tr>
+        <tr><td>Phones</td><td class="r">normal price</td></tr>
+        <tr><td>Tablets</td><td class="r">pay 30% less</td></tr>
+      </table>
+      <p class="audNote">Students look on a phone. Parents fill out the form on a laptop. That is why laptops cost more even though phones get more clicks.</p>
+    </div>
+  </div>
+  <p class="audNote" style="border-top:1px solid var(--line2);margin-top:22px;padding-top:16px">
+    <b>Time of year matters most.</b> More than half our class applies Early Decision in the fall. So we spend the most from September to November, and again in March and April to win over students who have already been admitted.
+  </p>
+</div>
+<div id="body"></div>
+
+
+<div class="mdBack" id="mdBack" onclick="if(event.target===this)adClose()">
+  <div class="md" role="dialog" aria-modal="true" aria-labelledby="mdTerm">
+    <div class="mdTop">
+      <div><div class="eb2">Ad preview &middot; what a searcher would see</div><h3 id="mdTerm"></h3></div>
+      <button class="mdX" onclick="adClose()" aria-label="Close">&times;</button>
+    </div>
+    <div class="mdBody" id="mdBody"></div>
+  </div>
+</div>
+
+<footer>
+Search volumes and cost-per-click: Google Keyword Planner, United States, August 2025 to July 2026, pulled 27 August 2026.<br>
+Clicks assume 3.5 per 100 impressions on non-branded terms and 10 per 100 on searches for our own name. Cost per click rises with impression share, between the low and high figures Google reports for each search. 
+</footer>
+</div>
+<script>
+const POOL=[{"c":"Broad \u00b7 undecided students","k":"best colleges in america","v":18100,"lo":1.49,"hi":5.58,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":0,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"liberal arts colleges","v":12100,"lo":1.74,"hi":10.8,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":1,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best liberal arts colleges","v":8100,"lo":0.07,"hi":4.02,"comp":"Low","n":"Already covered by 'liberal arts colleges'","b":false,"s":0.9,"r":false,"id":2,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"colleges with high acceptance rates","v":8100,"lo":4.91,"hi":29.39,"comp":"Low","n":"We accept 68% of applicants. Turned down to fit the budget","b":false,"s":0.35,"r":true,"id":3,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"college search","v":5400,"lo":1.06,"hi":7.57,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":4,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"college finder","v":3600,"lo":1.16,"hi":11.28,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":5,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"southern colleges","v":2400,"lo":4.98,"hi":27.67,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":6,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"colleges in the south","v":1600,"lo":1.39,"hi":8.6,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":7,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best schools in the south","v":1000,"lo":1.17,"hi":7.04,"comp":"Low","n":"Our #1 in the South ranking answers this question directly","b":false,"s":0.42,"r":true,"id":8,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best colleges east coast","v":1000,"lo":1.09,"hi":4.18,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":9,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"small liberal arts colleges","v":880,"lo":0.06,"hi":4.3,"comp":"Low","n":"Already covered by 'liberal arts colleges'","b":false,"s":0.9,"r":false,"id":10,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best private colleges","v":720,"lo":2.22,"hi":9.41,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":11,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best private universities","v":480,"lo":2.06,"hi":7.37,"comp":"Low","n":"Means the same as 'best private colleges'","b":false,"s":0.9,"r":false,"id":12,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best universities in the south","v":480,"lo":1.02,"hi":2.47,"comp":"Low","n":"Means the same as 'best schools in the south'","b":false,"s":0.9,"r":false,"id":13,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best majors for undecided students","v":390,"lo":1.56,"hi":12.05,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":14,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best small colleges","v":320,"lo":1.6,"hi":9.37,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":15,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"colleges with best student life","v":320,"lo":1.24,"hi":7.14,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":16,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"best colleges for undecided majors","v":140,"lo":1.4,"hi":9.74,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":17,"p":"\u2014","u":""},{"c":"Broad \u00b7 undecided students","k":"colleges with beautiful campuses","v":110,"lo":1.36,"hi":8.88,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":18,"p":"\u2014","u":""},{"c":"Majors \u00b7 specific program intent","k":"psychology major","v":14800,"lo":5.67,"hi":40.54,"comp":"Low","n":"Turned down on purpose. At full strength this one term would cost $2,643","b":false,"s":0.15,"r":true,"id":19,"p":"Psychology","u":"/psychology/"},{"c":"Majors \u00b7 specific program intent","k":"sport management degree","v":12100,"lo":7.05,"hi":39.78,"comp":"Medium","n":"At $7.05 a click, running this fully would cost $2,687","b":false,"s":0.9,"r":false,"id":20,"p":"Sport Management","u":"/sportmanagement/"},{"c":"Majors \u00b7 specific program intent","k":"top undergraduate business schools","v":12100,"lo":2.61,"hi":8.09,"comp":"Low","n":"Best value in the whole list","b":false,"s":0.42,"r":true,"id":21,"p":"Business Administration","u":"/businessadministration"},{"c":"Majors \u00b7 specific program intent","k":"interior design school","v":10400,"lo":6.28,"hi":22.95,"comp":"Medium","n":"At $6.28 a click, running this fully would cost $2,057","b":false,"s":0.9,"r":false,"id":22,"p":"Interior Design","u":"/interiordesign/"},{"c":"Majors \u00b7 specific program intent","k":"biology major","v":9900,"lo":2.17,"hi":24.38,"comp":"Low","n":"","b":false,"s":0.4,"r":true,"id":23,"p":"Biology","u":"/biology/"},{"c":"Majors \u00b7 specific program intent","k":"interior design schools","v":8100,"lo":6.28,"hi":22.95,"comp":"Medium","n":"Same as the term above, just plural","b":false,"s":0.9,"r":false,"id":24,"p":"Interior Design","u":"/interiordesign/"},{"c":"Majors \u00b7 specific program intent","k":"neuroscience major","v":6600,"lo":4.62,"hi":56.95,"comp":"Low","n":"The page needs more content","b":false,"s":0.9,"r":false,"id":25,"p":"Neuroscience","u":"/neuroscience/"},{"c":"Majors \u00b7 specific program intent","k":"exercise science degree","v":4400,"lo":5.71,"hi":32.09,"comp":"Medium","n":"The page needs more content","b":false,"s":0.9,"r":false,"id":26,"p":"Exercise Science","u":"/exercisescience/"},{"c":"Majors \u00b7 specific program intent","k":"kinesiology major","v":4400,"lo":4.17,"hi":33.55,"comp":"Low","n":"We do not have a Kinesiology major. Sends people to Exercise Science","b":false,"s":0.9,"r":false,"id":27,"p":"Exercise Science","u":"/exercisescience/"},{"c":"Majors \u00b7 specific program intent","k":"biochemistry major","v":3600,"lo":4.06,"hi":37.43,"comp":"Low","n":"The page has not been updated since 2014","b":false,"s":0.9,"r":false,"id":28,"p":"Biochemistry","u":"/biochemistry/"},{"c":"Majors \u00b7 specific program intent","k":"mechanical engineering colleges","v":2900,"lo":3.24,"hi":27.12,"comp":"Low","n":"The page is only 803 words long","b":false,"s":0.9,"r":false,"id":29,"p":"Mechanical Engineering","u":"/mechanical-engineering/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for sports management","v":2900,"lo":3.2,"hi":13.52,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":30,"p":"Sport Management","u":"/sportmanagement/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for finance","v":2900,"lo":2.05,"hi":10.46,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":31,"p":"Finance","u":"/finance/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for computer science","v":2900,"lo":3.24,"hi":18.62,"comp":"Low","n":"Accredited program","b":false,"s":0.42,"r":true,"id":32,"p":"Computer Science","u":"/computerscience"},{"c":"Majors \u00b7 specific program intent","k":"bachelor of science in biology","v":2900,"lo":8.09,"hi":60.0,"comp":"Low","n":"Costs $8.09 versus $2.17 for 'biology major'. Same students","b":false,"s":0.9,"r":false,"id":33,"p":"Biology","u":"/biology/"},{"c":"Majors \u00b7 specific program intent","k":"political science degree","v":2400,"lo":4.5,"hi":null,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":34,"p":"Political Science","u":"/politicalscience/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for criminal justice","v":2400,"lo":3.58,"hi":32.9,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":35,"p":"Criminal Justice","u":"/criminaljustice/"},{"c":"Majors \u00b7 specific program intent","k":"pre pa","v":2400,"lo":3.78,"hi":19.97,"comp":"Low","n":"Has its own page already built","b":false,"s":0.9,"r":false,"id":36,"p":"Pre-Physician Assistant","u":"/preprofessionalprograms/physician-assistant/"},{"c":"Majors \u00b7 specific program intent","k":"best interior design schools","v":1900,"lo":2.6,"hi":10.83,"comp":"Medium","n":"Accredited, and all 21 graduates found jobs in 2024","b":false,"s":0.42,"r":true,"id":37,"p":"Interior Design","u":"/interiordesign/"},{"c":"Majors \u00b7 specific program intent","k":"interior designing programs","v":1900,"lo":6.28,"hi":null,"comp":"Medium","n":"Means the same thing as the terms above","b":false,"s":0.9,"r":false,"id":38,"p":"Interior Design","u":"/interiordesign/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for accounting","v":1300,"lo":3.25,"hi":20.56,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":39,"p":"Accounting","u":"/accounting"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for business majors","v":1300,"lo":2.95,"hi":16.51,"comp":"Medium","n":"","b":false,"s":0.42,"r":true,"id":40,"p":"Business Administration","u":"/businessadministration"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for education majors","v":1300,"lo":2.58,"hi":15.58,"comp":"Medium","n":"No student stories on the page yet. We offer Elementary, Middle Grades and Special Education","b":false,"s":0.9,"r":false,"id":41,"p":"Elementary Education","u":"/education/"},{"c":"Majors \u00b7 specific program intent","k":"journalism schools","v":1300,"lo":4.5,"hi":null,"comp":"Low","n":"Costs $4.50 a click for only 1,300 searches. Weak value","b":false,"s":0.9,"r":false,"id":42,"p":"Journalism","u":"/journalism/"},{"c":"Majors \u00b7 specific program intent","k":"sports management colleges","v":1000,"lo":4.85,"hi":28.82,"comp":"Medium","n":"Already covered by the other sport terms","b":false,"s":0.9,"r":false,"id":43,"p":"Sport Management","u":"/sportmanagement/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for biology majors","v":880,"lo":1.67,"hi":10.2,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":44,"p":"Biology","u":"/biology/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for entrepreneurship","v":880,"lo":2.86,"hi":13.87,"comp":"Low","n":"The page is only 755 words long","b":false,"s":0.9,"r":false,"id":45,"p":"Entrepreneurship","u":"/entrepreneurship/"},{"c":"Majors \u00b7 specific program intent","k":"game design colleges","v":880,"lo":6.13,"hi":30.04,"comp":"Medium","n":"","b":false,"s":0.9,"r":false,"id":46,"p":"Game Design","u":"/gamedesign/"},{"c":"Majors \u00b7 specific program intent","k":"best sports broadcasting schools","v":590,"lo":3.36,"hi":17.0,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":47,"p":"Sports Media","u":"/sportsmedia/"},{"c":"Majors \u00b7 specific program intent","k":"event management degree","v":590,"lo":4.5,"hi":null,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":48,"p":"Event Management","u":"/eventmanagement/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for graphic design","v":590,"lo":3.43,"hi":14.89,"comp":"Medium","n":"","b":false,"s":0.9,"r":false,"id":49,"p":"Studio Art, Graphic Design","u":"/graphicdesign/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for theatre","v":590,"lo":1.53,"hi":7.14,"comp":"Low","n":"Cheapest program term we found","b":false,"s":0.9,"r":false,"id":50,"p":"Theater","u":"/theater/"},{"c":"Majors \u00b7 specific program intent","k":"actuarial science major","v":480,"lo":2.67,"hi":9.04,"comp":"Low","n":"The page needs more content","b":false,"s":0.9,"r":false,"id":51,"p":"Actuarial Science","u":"/actuarialscience"},{"c":"Majors \u00b7 specific program intent","k":"sports media degree","v":320,"lo":4.5,"hi":null,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":52,"p":"Sports Media","u":"/sportsmedia/"},{"c":"Majors \u00b7 specific program intent","k":"best hospitality management schools","v":210,"lo":3.75,"hi":16.78,"comp":"Medium","n":"","b":false,"s":0.9,"r":false,"id":53,"p":"Hospitality Management","u":"/hospitality-management/"},{"c":"Majors \u00b7 specific program intent","k":"best communication schools","v":170,"lo":2.56,"hi":8.06,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":54,"p":"Advertising, PR & Strategic Comm","u":"/strategiccommunication/"},{"c":"Majors \u00b7 specific program intent","k":"best fashion merchandising schools","v":170,"lo":2.53,"hi":11.25,"comp":"Low","n":"Unusual, and almost nobody else is bidding","b":false,"s":0.9,"r":false,"id":55,"p":"Fashion Merchandising","u":"/fashionmerchandising/"},{"c":"Nursing","k":"nursing schools in nc","v":2900,"lo":5.92,"hi":24.84,"comp":"Medium","n":"'best nursing schools' reaches more people for less","b":false,"s":0.9,"r":false,"id":56,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"best nursing schools in nc","v":880,"lo":4.3,"hi":16.38,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":57,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"best nursing programs in nc","v":880,"lo":4.3,"hi":16.38,"comp":"Low","n":"Google counts these as the same searches","b":false,"s":0.9,"r":false,"id":58,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"best colleges in north carolina for nursing","v":880,"lo":4.3,"hi":16.38,"comp":"Low","n":"Google counts these as the same searches","b":false,"s":0.9,"r":false,"id":59,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"good nursing schools in nc","v":880,"lo":4.3,"hi":16.38,"comp":"Low","n":"Google counts these as the same searches","b":false,"s":0.9,"r":false,"id":60,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"top nursing programs in nc","v":880,"lo":4.3,"hi":16.38,"comp":"Low","n":"Google counts these as the same searches","b":false,"s":0.9,"r":false,"id":61,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"bsn programs in nc","v":320,"lo":7.1,"hi":41.32,"comp":"Low","n":"Covered by 'best bsn programs' at a lower cost","b":false,"s":0.9,"r":false,"id":62,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Our own name","k":"high point university","v":90500,"lo":0.29,"hi":1.0,"comp":"Low","n":"","b":true,"s":0.1,"r":true,"id":63,"p":"\u2014","u":"/"},{"c":"Our own name","k":"high point university cost","v":9900,"lo":0.29,"hi":1.0,"comp":"Low","n":"","b":true,"s":0.1,"r":true,"id":64,"p":"\u2014","u":"/"},{"c":"Our own name","k":"hpu","v":8100,"lo":0.29,"hi":1.0,"comp":"Low","n":"","b":true,"s":0.1,"r":true,"id":65,"p":"\u2014","u":"/"},{"c":"Our own name","k":"high point university acceptance rate","v":6600,"lo":0.29,"hi":1.0,"comp":"Low","n":"","b":true,"s":0.083,"r":false,"id":66,"p":"\u2014","u":"/"},{"c":"Our own name","k":"high point university tuition","v":2400,"lo":0.29,"hi":1.0,"comp":"Low","n":"","b":true,"s":0.083,"r":false,"id":67,"p":"\u2014","u":"/"},{"c":"Our own name","k":"high point university requirements","v":320,"lo":0.29,"hi":1.0,"comp":"Low","n":"","b":true,"s":0.083,"r":false,"id":68,"p":"\u2014","u":"/"},{"c":"Big swings \u00b7 high volume, high price","k":"physician assistant","v":90500,"lo":1.58,"hi":15.09,"comp":"Low","n":"A master's program, and most searchers are just researching the job","b":false,"s":0.2,"r":false,"id":69,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"interior design","v":74000,"lo":6.28,"hi":22.95,"comp":"Medium","n":"Most of these searches are homeowners, not students","b":false,"s":0.2,"r":false,"id":70,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"nursing colleges near me","v":60500,"lo":10.32,"hi":51.23,"comp":"High","n":"For working nurses going back to school, not our students","b":false,"s":0.2,"r":false,"id":71,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"business administration degree","v":22200,"lo":14.11,"hi":61.09,"comp":"Medium","n":"Use 'top undergraduate business schools' instead, at $2.61","b":false,"s":0.2,"r":false,"id":72,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"healthcare administration","v":22200,"lo":11.2,"hi":47.09,"comp":"Medium","n":"Dominated by online master's programs","b":false,"s":0.2,"r":false,"id":73,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"criminal justice degree","v":18100,"lo":14.28,"hi":65.0,"comp":"Medium","n":"Use 'best colleges for criminal justice' instead, at $3.58","b":false,"s":0.2,"r":false,"id":74,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"business degrees","v":14800,"lo":9.23,"hi":43.19,"comp":"Medium","n":"Cheapest of the broad business terms","b":false,"s":0.2,"r":false,"id":75,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"cyber security college","v":1600,"lo":11.89,"hi":68.07,"comp":"Medium","n":"Dominated by for-profit online schools","b":false,"s":0.2,"r":false,"id":76,"p":"\u2014","u":""},{"c":"Nursing","k":"best nursing schools","v":9900,"lo":3.34,"hi":24.76,"comp":"Medium","n":"Costs less than the NC versions and reaches three times as many people","b":false,"s":0.42,"r":true,"id":77,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"top nursing programs","v":9900,"lo":3.34,"hi":24.76,"comp":"Medium","n":"Google counts this as the same searches as 'best nursing schools'","b":false,"s":0.9,"r":false,"id":78,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"best bsn programs","v":590,"lo":5.23,"hi":33.78,"comp":"Low","n":"","b":false,"s":0.42,"r":true,"id":79,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"traditional bsn program","v":1000,"lo":8.07,"hi":40.13,"comp":"Low","n":"Sets us apart from fast-track and online programs, but pricey","b":false,"s":0.9,"r":false,"id":80,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"bsn programs","v":8100,"lo":9.08,"hi":40.93,"comp":"Medium","n":"Costs $9.08 a click. Very broad","b":false,"s":0.9,"r":false,"id":81,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Nursing","k":"nursing colleges","v":6600,"lo":7.12,"hi":41.34,"comp":"Medium","n":"Costs $7.12 a click. Very broad","b":false,"s":0.9,"r":false,"id":82,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for pre med","v":6600,"lo":1.39,"hi":7.32,"comp":"Low","n":"Cheapest good term we found, and the page is already built","b":false,"s":0.42,"r":true,"id":83,"p":"Pre-Medicine","u":"/preprofessionalprograms/medicine/"},{"c":"Majors \u00b7 specific program intent","k":"mathematics major","v":3600,"lo":2.16,"hi":10.89,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":84,"p":"Mathematics","u":"/mathematics/"},{"c":"Majors \u00b7 specific program intent","k":"chemistry major","v":2400,"lo":2.99,"hi":20.47,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":85,"p":"Chemistry","u":"/chemistry"},{"c":"Majors \u00b7 specific program intent","k":"mechatronics degree","v":1600,"lo":3.36,"hi":14.19,"comp":"Medium","n":"Unusual. Few schools offer it","b":false,"s":0.9,"r":false,"id":86,"p":"Mechatronics","u":"/mechatronics/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for music","v":1300,"lo":1.76,"hi":9.41,"comp":"Low","n":"","b":false,"s":0.9,"r":false,"id":87,"p":"Music","u":"/music/"},{"c":"Majors \u00b7 specific program intent","k":"international business degree","v":1600,"lo":6.35,"hi":26.24,"comp":"Medium","n":"","b":false,"s":0.9,"r":false,"id":88,"p":"International Business","u":"/internationalbusiness/"},{"c":"Majors \u00b7 specific program intent","k":"best colleges for dance","v":590,"lo":1.53,"hi":5.99,"comp":"Low","n":"Cheapest term anywhere in this list","b":false,"s":0.9,"r":false,"id":89,"p":"Dance","u":"/dance"},{"c":"Majors \u00b7 specific program intent","k":"sociology major","v":4400,"lo":7.45,"hi":35.0,"comp":"Low","n":"Costs $7.45 a click. Expensive for how few searches","b":false,"s":0.9,"r":false,"id":90,"p":"Sociology & Anthropology","u":"/sociology/"},{"c":"Big swings \u00b7 high volume, high price","k":"nursing school","v":60500,"lo":8.96,"hi":44.51,"comp":"Medium","n":"Too broad. Mixes in online and fast-track programs","b":false,"s":0.2,"r":false,"id":91,"p":"Nursing (BSN)","u":"/nursing/"},{"c":"Big swings \u00b7 high volume, high price","k":"accelerated nursing programs","v":40500,"lo":7.2,"hi":35.13,"comp":"High","n":"We do not offer an accelerated nursing program","b":false,"s":0.2,"r":false,"id":92,"p":"\u2014","u":""},{"c":"Big swings \u00b7 high volume, high price","k":"direct entry bsn","v":110,"lo":4.29,"hi":20.71,"comp":"Low","n":"We do not offer this. Advertising it would be misleading","b":false,"s":0.2,"r":false,"id":93,"p":"\u2014","u":""}];
+const CATAUD={
+ 'Broad · undecided students':'<b>Who sees these:</b> parents of teenagers, students 18 to 24, and people Google knows are shopping for a college. Every state, but we pay more in the Northeast. No repeat ads here, this is our first hello.',
+ 'Majors · specific program intent':'<b>Who sees these:</b> the same people, plus anyone Google knows is interested in that field. We also show these again to people who already visited that program page.',
+ 'Nursing':'<b>Who sees these:</b> mostly North Carolina and the Triad, plus people looking into health careers. We leave out adults over 25 with no kids. Those are working nurses going back to school, not our students.',
+ 'Our own name':'<b>Who sees these:</b> everyone, everywhere, at full price. If someone types our name, we want to be there no matter who they are.',
+ 'Big swings · high volume, high price':'<b>Who sees these:</b> if we turn any of these on, we limit them to our top states only and give them their own spending cap.'};
+const BUDGET=10000;
+let CURVE=1.5;   // 2.2 best case | 1.5 likely | 1.0 cautious
+const st={};
+POOL.forEach(r=>st[r.id]={on:!!r.r,share:r.s});
+const money=n=>'$'+Math.round(n).toLocaleString();
+const num=n=>Math.round(n).toLocaleString();
+const ctr=r=>r.b?0.10:0.035;
+// The more of a search we want to win, the more each click costs.
+// At a tiny share we pay Google's cheapest recorded price; at 100% we pay the highest.
+function priceAt(r,share){
+  if(r.hi==null||r.hi<=r.lo) return r.lo;
+  return r.lo+(r.hi-r.lo)*Math.pow(Math.min(1,Math.max(0,share)),CURVE);
+}
+function price(r){return priceAt(r,st[r.id].share);}
+function calc(r,share){const im=Math.round(r.v*share);const cl=Math.round(im*ctr(r));
+  return {im,cl,sp:cl*priceAt(r,share)};}
+const AD={"0": {"h": ["Best Colleges in America", "#1 Regional College, South", "99% Placed in 180 Days"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "99% are working or in grad school within 180 days. Come see the campus."], "p": ["Rankings"], "u": "/academic-excellence/national-rankings-awards/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/ + HPU Career Outcomes, 99% within 180 days, 13 points above the national average, via /career-outcomes/"}, "1": {"h": ["Liberal Arts Colleges", "#1 Undergraduate Teaching", "15 Students to 1 Professor"], "d": ["U.S. News ranks HPU #1 for Best Undergraduate Teaching in the South Region. 15:1 ratio.", "Every class taught by a professor. 73 majors across 8 schools. Visit campus."], "p": ["Academics"], "u": "/academics/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/; ratio from /admissions/"}, "2": {"h": ["Best Liberal Arts Colleges", "#1 Undergraduate Teaching", "Ranked #1 for 14 Years"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "Also #1 for Best Undergraduate Teaching in the South. Come meet the faculty."], "p": ["Rankings"], "u": "/academic-excellence/national-rankings-awards/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/"}, "3": {"h": ["68% Acceptance Rate", "Test Optional Admissions", "No Extra Essay for Aid"], "d": ["High Point admitted 68% of applicants to the Class of 2029. Test optional.", "Your admission application is also your scholarship application. No extra essay."], "p": ["Admissions"], "u": "/admissions/", "s": "HPU Admissions Profile, Class of 2029, via /academic-excellence/admissions-profile/; /admissions/scholarships-and-grants/"}, "4": {"h": ["Start Your College Search", "#1 Regional College, South", "Book a Campus Visit"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "See the campus, meet a professor and talk to a Success Coach in one visit."], "p": ["Visit"], "u": "/discoverhpu/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/"}, "5": {"h": ["Find the Right College", "#1 Regional College, South", "99% Placed in 180 Days"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "99% are working or in grad school within 180 days, 13 points above average."], "p": ["Discover", "HPU"], "u": "/discoverhpu/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/ + HPU Career Outcomes, 99% within 180 days, 13 points above the national average, via /career-outcomes/"}, "6": {"h": ["Southern Colleges", "#1 Regional College, South", "Ranked #1 for 14 Years"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "High Point, North Carolina. 1,665 students in the newest class, from 50 states."], "p": ["Rankings"], "u": "/academic-excellence/national-rankings-awards/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/ + HPU Admissions Profile, Class of 2029, via /academic-excellence/admissions-profile/"}, "7": {"h": ["Colleges in the South", "#1 Regional College, South", "See Campus in Person"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "Students from 50 states and 53 countries. 15 students to every professor."], "p": ["Visit"], "u": "/discoverhpu/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/; /admissions/"}, "8": {"h": ["Best Schools in the South", "Ranked #1 for 14 Years", "#1 Undergraduate Teaching"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "The only university in the South holding three simultaneous #1 U.S. News ranks."], "p": ["Rankings"], "u": "/academic-excellence/national-rankings-awards/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/"}, "9": {"h": ["Best Colleges East Coast", "#1 Regional College, South", "99% Placed in 180 Days"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "99% are working or in grad school within 180 days, 13 points above average."], "p": ["Rankings"], "u": "/academic-excellence/national-rankings-awards/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/ + HPU Career Outcomes, 99% within 180 days, 13 points above the national average, via /career-outcomes/"}, "10": {"h": ["Small Liberal Arts Colleges", "15 Students to 1 Professor", "#1 Undergraduate Teaching"], "d": ["U.S. News ranks HPU #1 for Best Undergraduate Teaching in the South Region.", "15:1 student-faculty ratio, and 100% of classes are taught by faculty."], "p": ["Academics"], "u": "/academics/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/; /admissions/ and /discoverhpu/"}, "11": {"h": ["Best Private Colleges", "#1 Regional College, South", "$23,000+ Average Aid"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "The average aid package is more than $23,000. See the full cost breakdown."], "p": ["Tuition"], "u": "/admissions/tuition-fees/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/; /admissions/tuition-fees/"}, "12": {"h": ["Best Private Universities", "#1 Regional College, South", "$23,000+ Average Aid"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "Merit scholarships run from $5,000 to full tuition. Priority deadline Nov 15."], "p": ["Scholarships"], "u": "/admissions/scholarships-and-grants/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/; /admissions/scholarships-and-grants/"}, "13": {"h": ["Best Universities, South", "Ranked #1 for 14 Years", "#1 Best-Run College"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "The Princeton Review named HPU the #1 Best-Run College in the Nation, 2 years running."], "p": ["Rankings"], "u": "/academic-excellence/national-rankings-awards/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/"}, "14": {"h": ["Undecided? Start Here", "73 Majors, 70 Minors", "Success Coach From Day 1"], "d": ["Every student gets a Success Coach and a Career Advisor from the first year.", "Explore majors across eight schools before you commit to one. Visit campus."], "p": ["Academics"], "u": "/academics/", "s": "/admissions/tuition-fees/ (complimentary Success Coach); /academics/"}, "15": {"h": ["Best Small Colleges", "15 Students to 1 Professor", "#1 Undergraduate Teaching"], "d": ["U.S. News ranks HPU #1 for Best Undergraduate Teaching in the South Region.", "15:1 ratio and 100% of classes taught by faculty, not teaching assistants."], "p": ["Academics"], "u": "/academics/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/; /discoverhpu/"}, "16": {"h": ["Colleges With Student Life", "#2 Best College Dorms", "#6 Active Student Govt"], "d": ["The Princeton Review ranks HPU #2 for Best College Dorms and #10 Most Beautiful.", "Athletic events, concerts, laundry and campus parking are included in the cost."], "p": ["Student-Life"], "u": "/discoverhpu/", "s": "Princeton Review 2026 via /academic-excellence/national-rankings-awards/"}, "17": {"h": ["Best for Undecided Majors", "73 Majors, 70 Minors", "Success Coach From Day 1"], "d": ["Try classes across eight schools before you declare. A Success Coach helps you plan.", "99% are working or in grad school within 180 days, 13 points above average."], "p": ["Academics"], "u": "/academics/", "s": "HPU Career Outcomes, 99% within 180 days, 13 points above the national average, via /career-outcomes/; /academics/"}, "18": {"h": ["Beautiful College Campuses", "#10 Most Beautiful Campus", "Book a Campus Visit"], "d": ["The Princeton Review ranks HPU #10 Most Beautiful Campus and #2 Best Dorms.", "Nearly $200 million in new construction. Come walk it before you decide."], "p": ["Visit"], "u": "/discoverhpu/", "s": "Princeton Review 2026; Washington Times 27 May 2026, via rankings page"}, "19": {"h": ["B.S. in Psychology", "Research at the FBI", "3rd Most Popular Major"], "d": ["HPU students have done psychology research at FBI headquarters and Bowman Gray.", "Three research methods courses, 250+ majors, and a Psi Chi honor society chapter."], "p": ["Psychology"], "u": "/psychology/", "s": "/psychology/"}, "20": {"h": ["Sport Management Degree", "Intern With the NBA", "Internship Required"], "d": ["A 4-credit internship is required. Students have worked with the NBA and MLB.", "Placements include Madison Square Garden, the Yankees, the ACC and Under Armour."], "p": ["Sport-Mgmt"], "u": "/sportmanagement/", "s": "/sportmanagement/"}, "21": {"h": ["Top Undergrad Business", "Earn a 4+1 MBA", "Trade in the Tilley Room"], "d": ["1,500 students in the Phillips School of Business. Finish an MBA in a fifth year.", "Trade in the W. Allen Tilley Trading Room and work High Point Furniture Market."], "p": ["Business"], "u": "/businessadministration", "s": "/businessadministration/"}, "22": {"h": ["Interior Design School", "CIDA-Accredited Program", "NCIDQ Exam Eligible"], "d": ["The B.S. in Interior Design is accredited by the Council for Interior Design.", "All 20 job-seeking graduates in the Class of 2023 were employed or interning."], "p": ["Interior-Dsgn"], "u": "/interiordesign/", "s": "/interiordesign/ CIDA statement and cohort table"}, "23": {"h": ["B.S. in Biology", "Paid Summer Research", "Health Science Track"], "d": ["An 8-week summer research program with housing, meals and a stipend included.", "Faculty research in cancer biology, neurobiology, paleobiology and ecology."], "p": ["Biology"], "u": "/biology/", "s": "/biology/"}, "24": {"h": ["Interior Design Schools", "CIDA-Accredited Program", "1 of 2 IIDA Campus Centers"], "d": ["The B.S. in Interior Design is accredited by the Council for Interior Design.", "One of only two IIDA Campus Centers at a private college in the Carolinas."], "p": ["Interior-Dsgn"], "u": "/interiordesign/", "s": "/interiordesign/"}, "25": {"h": ["B.S. in Neuroscience", "Two Neuroscience Tracks", "Paid Summer Research"], "d": ["Choose Behavioral Neuroscience or Neurobiology. Both are laboratory-intensive.", "Summer research stipends include room and board. Study neural injury and repair."], "p": ["Neuroscience"], "u": "/neuroscience/", "s": "/neuroscience/"}, "26": {"h": ["Exercise Science Degree", "24 Motion Capture Cameras", "13,500 Sq Ft Lab"], "d": ["A 13,500 sq ft biomechanics lab with 24 motion capture cameras and force plates.", "Add a fifth-year M.S. in Athletic Training through the 3+2 pathway."], "p": ["Exercise-Sci"], "u": "/exercisescience/", "s": "/exercisescience/"}, "27": {"h": ["Exercise Science Degree", "24 Motion Capture Cameras", "3+2 Athletic Training"], "d": ["HPU's kinesiology-track degree is the B.S. in Exercise Science. See the curriculum.", "Anti-gravity treadmills, a DEXA scanner and an environmental chamber on campus."], "p": ["Exercise-Sci"], "u": "/exercisescience/", "s": "/exercisescience/", "w": "HPU does not offer a Kinesiology major. Headline must not imply one. Copy names the actual degree."}, "28": {"h": ["B.S. in Biochemistry", "Research From Year One", "Present at ACS National"], "d": ["An 8-week paid summer research program on campus, starting as early as year one.", "Students present at the ACS National Meeting and win NSF-REU placements."], "p": ["Biochemistry"], "u": "/biochemistry/", "s": "/biochemistry/", "w": "Landing page has not been refreshed since 2014. Update before this ad runs."}, "29": {"h": ["Mechanical Engineering", "Two-Semester Capstone", "Webb School of Engineering"], "d": ["A two-semester senior design sequence, 131 credits, built to ABET criteria.", "First two graduating classes posted a 100% first-time FE exam pass rate."], "p": ["Engineering"], "u": "/mechanical-engineering/", "s": "/mechanical-engineering/; FE rate from rankings page", "w": "Do NOT say ABET-accredited. Only the B.S. in Computer Science carries that statement."}, "30": {"h": ["Best Sport Management", "Intern With the NBA", "Internship Required"], "d": ["A 4-credit internship is required to graduate. Students place with NBA and MLB clubs.", "Placements include Madison Square Garden, the ACC, Hendrick Motorsports and IMG."], "p": ["Sport-Mgmt"], "u": "/sportmanagement/", "s": "/sportmanagement/"}, "31": {"h": ["Best Colleges for Finance", "Manage a $180,000 Fund", "70% of CFA Level 1"], "d": ["The student Investment Club manages a portfolio of more than $180,000 in real money.", "Bloomberg and Envestnet certifications are built into the finance major."], "p": ["Finance"], "u": "/finance/", "s": "/finance/"}, "32": {"h": ["Best for Computer Science", "ABET-Accredited B.S.", "10,000+ Core Cluster"], "d": ["The B.S. in Computer Science is accredited by the CAC Accreditation Commission of ABET.", "Train on a 10,000+ core cluster with Nvidia GPUs. Add a cybersecurity concentration."], "p": ["Comp-Sci"], "u": "/computerscience", "s": "/computerscience/ ABET statement"}, "33": {"h": ["B.S. in Biology", "Paid Summer Research", "Research With Faculty"], "d": ["An 8-week summer research program with housing, meals and a stipend included.", "Present at the Association of Southeastern Biologists and the Keystone Symposia."], "p": ["Biology"], "u": "/biology/", "s": "/biology/"}, "34": {"h": ["Political Science Degree", "Work on Capitol Hill", "Run the HPU Poll"], "d": ["Every major finishes with a political internship or a research project presented publicly.", "Graduates have staffed Congress and gone on to George Washington and UNC law."], "p": ["Poli-Sci"], "u": "/politicalscience/", "s": "/politicalscience/"}, "35": {"h": ["Best for Criminal Justice", "9,000 Sq Ft Crime Lab", "Work a Real Crime Scene"], "d": ["A 9,000 sq ft learning lab with an evidence room and a working courtroom.", "Process mock crime scenes and sit in on real Guilford County felony trials."], "p": ["Criminal-Just"], "u": "/criminaljustice/", "s": "/criminaljustice/"}, "36": {"h": ["Pre-PA Advising at HPU", "Accepted at Duke and Wake", "Two Named Advisors"], "d": ["HPU students have been accepted to PA programs at Duke, Wake Forest and Elon.", "Two faculty advisors map your prerequisites and patient-care hours from year one."], "p": ["Pre-PA"], "u": "/preprofessionalprograms/physician-assistant/", "s": "/preprofessionalprograms/physician-assistant/", "w": "Thinnest page in the set. Do not use the undated 78% multiple-offers figure."}, "37": {"h": ["Best Interior Design", "CIDA-Accredited Program", "20 of 20 Grads Placed"], "d": ["All 20 job-seeking graduates in the Class of 2023 were employed or interning.", "CIDA accredited and NCIDQ exam eligible. Design at High Point Furniture Market."], "p": ["Interior-Dsgn"], "u": "/interiordesign/", "s": "/interiordesign/ cohort table, Class of 2023, 78% knowledge rate"}, "38": {"h": ["Interior Design Programs", "CIDA-Accredited Program", "NCIDQ Exam Eligible"], "d": ["The B.S. in Interior Design is accredited by the Council for Interior Design.", "Studio sequence I through VII, a capstone, and Design Days at High Point Market."], "p": ["Interior-Dsgn"], "u": "/interiordesign/", "s": "/interiordesign/"}, "39": {"h": ["Best for Accounting", "Intern With the Big 4", "Meet NC CPA Requirements"], "d": ["Students intern at Deloitte, EY, KPMG and PwC. Recent grads went to PwC and EisnerAmper.", "The curriculum satisfies every requirement to sit for the North Carolina CPA exam."], "p": ["Accounting"], "u": "/accounting", "s": "/accounting/", "w": "No business accreditation claim. HPU holds no AACSB or ACBSP."}, "40": {"h": ["Best for Business Majors", "Earn a 4+1 MBA", "Trade in the Tilley Room"], "d": ["1,500 students in the Phillips School of Business. Finish an MBA in a fifth year.", "Truist Leadership certification, a real-money investment club and Furniture Market."], "p": ["Business"], "u": "/businessadministration", "s": "/businessadministration/", "w": "No business accreditation claim. HPU holds no AACSB or ACBSP."}, "41": {"h": ["Best for Education Majors", "AAQEP Accredited", "100% edTPA Pass Rate"], "d": ["Accredited by AAQEP through June 2030 and ranked top 10% by the NCTQ.", "A 100% edTPA pass rate for five straight years, against a 72% national average."], "p": ["Education"], "u": "/education/", "s": "/education/ AAQEP statement; edTPA from rankings page"}, "42": {"h": ["Journalism Schools", "Mentored by Byron Pitts", "Anchor a Weekly Newscast"], "d": ["Byron Pitts, co-anchor of ABC News Nightline, is HPU's Journalist-in-Residence.", "Anchor the weekly newscast. Interns have worked at NBC News, ESPN and MTV."], "p": ["Journalism"], "u": "/journalism/", "s": "/journalism/"}, "43": {"h": ["Sport Management Colleges", "Intern With the NBA", "Internship Required"], "d": ["A 4-credit internship is required. Students have worked with the NBA, MLB and the ACC.", "Course work in sport law, sport finance and facility management. NCAA Division I."], "p": ["Sport-Mgmt"], "u": "/sportmanagement/", "s": "/sportmanagement/"}, "44": {"h": ["Best for Biology Majors", "Paid Summer Research", "Health Science Track"], "d": ["An 8-week summer research program with housing, meals and a stipend included.", "Grants from the NSF, U.S. Forest Service and the NC Biotechnology Center."], "p": ["Biology"], "u": "/biology/", "s": "/biology/"}, "45": {"h": ["Best Entrepreneurship", "$30,000 Pitch Competition", "Belk Entrepreneur Center"], "d": ["Students have won $30,000 in a Shark Tank style business plan competition.", "Access to Netflix co-founder Marc Randolph through the Access to Innovators series."], "p": ["Entrepreneur"], "u": "/entrepreneurship/", "s": "/entrepreneurship/", "w": "Page is only 755 words. Congdon School 99% placement claim carries no cohort year, so it is not used here."}, "46": {"h": ["Game Design Colleges", "Top 50 Game Design", "AAA and Indie Toolchains"], "d": ["The Princeton Review named HPU a Top 50 Undergraduate Game Design program.", "Build in AAA and indie toolchains and ship VR simulations for real HPU departments."], "p": ["Game-Design"], "u": "/gamedesign/", "s": "Princeton Review 2022 and 2023 via rankings page; /gamedesign/", "w": "The Top 50 listing is from 2022 and 2023. Attach the year or drop the claim."}, "47": {"h": ["Sports Broadcasting", "Learn From Bob Ryan", "Call 70+ Live Games"], "d": ["ESPN's Bob Ryan is HPU's Sportswriter-in-Residence and works with students.", "Sports Link students call more than 70 live home games for the Big South Network."], "p": ["Sports-Media"], "u": "/sportsmedia/", "s": "/sportsmedia/"}, "48": {"h": ["Event Management Degree", "IFEA Pinnacle Award", "Intern at the Met Opera"], "d": ["The IFEA has given HPU its Pinnacle Award for the best event management degree.", "Two HPU teams reached the PCMA Global Student Competition finals. One team won."], "p": ["Event-Mgmt"], "u": "/eventmanagement/", "s": "/eventmanagement/ (IFEA Pinnacle 2016-2023; PCMA)"}, "49": {"h": ["Best for Graphic Design", "NASAD-Accredited BFA", "Graduate With a Portfolio"], "d": ["The B.F.A. in Studio with a Graphic Design concentration is accredited by NASAD.", "All 7 job-seeking graduates in the first cohort, Class of 2024, were placed."], "p": ["Graphic-Dsgn"], "u": "/graphicdesign/", "s": "/graphicdesign/ NASAD statement and Class of 2024 table"}, "50": {"h": ["Best Colleges for Theatre", "Perform With Chesapeake", "6 Productions a Year"], "d": ["A permanent relationship with the Chesapeake Shakespeare Company. Students work summers.", "More than 20 new plays developed and produced. At least six productions a year."], "p": ["Theater"], "u": "/theater/", "s": "/theater/", "w": "All four OnStage rankings on the page are 2016-2020. Not used in this ad."}, "51": {"h": ["Actuarial Science Major", "SOA Exam P and FM Prep", "Built With Real Actuaries"], "d": ["Course work accepted by the Society of Actuaries for its VEE requirements.", "Dedicated prep courses aim to have you pass the first two exams before you graduate."], "p": ["Actuarial-Sci"], "u": "/actuarialscience", "s": "/actuarialscience/", "w": "Newest graduate profile is 2022. Refresh the page before this ad runs."}, "52": {"h": ["Sports Media Degree", "Learn From Bob Ryan", "Call 70+ Live Games"], "d": ["ESPN's Bob Ryan is HPU's Sportswriter-in-Residence and works directly with students.", "Run camera, replay and play-by-play for 70+ live games on the Big South Network."], "p": ["Sports-Media"], "u": "/sportsmedia/", "s": "/sportsmedia/"}, "53": {"h": ["Hospitality Management", "800 Hours in the Field", "Train With Marriott"], "d": ["The major requires 800 supervised hours in the field before you graduate.", "Students have trained through Marriott Voyage, Hilton, Four Seasons and Disney."], "p": ["Hospitality"], "u": "/hospitality-management/", "s": "/hospitality-management/"}, "54": {"h": ["Best Communication School", "Run a Real Ad Agency", "Work the DNC and RNC"], "d": ["Ascension336 is a student-run agency with real clients and real deadlines.", "Students work the national conventions each cycle alongside CNN and ABC crews."], "p": ["Strategic-Com"], "u": "/strategiccommunication/", "s": "/strategiccommunication/"}, "55": {"h": ["Fashion Merchandising", "Internship Required", "Intern at Tory Burch"], "d": ["A local internship is required in the fall of your senior year. No exceptions.", "Recent grads went to Ralph Lauren and Rent the Runway. Work High Point Market."], "p": ["Fashion"], "u": "/fashionmerchandising/", "s": "/fashionmerchandising/"}, "56": {"h": ["Nursing Schools in NC", "NC Board Full Approval", "100% NCLEX, First Class"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% NCLEX-RN pass rate. 14 simulators."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "57": {"h": ["Best Nursing Schools NC", "NC Board Full Approval", "50,000 Sq Ft Nursing Labs"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "58": {"h": ["Best Nursing Programs NC", "NC Board Full Approval", "100% NCLEX, First Class"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "59": {"h": ["NC Colleges for Nursing", "NC Board Full Approval", "14 Patient Simulators"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "A 16-bed skills lab, 14 simulators and three high-fidelity simulation suites."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "60": {"h": ["Nursing Schools in NC", "NC Board Full Approval", "100% NCLEX, First Class"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "61": {"h": ["Top Nursing Programs NC", "NC Board Full Approval", "50,000 Sq Ft Nursing Labs"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "Clinical placements across the Piedmont Triad. Dean chairs the NC Board of Nursing."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "62": {"h": ["BSN Programs in NC", "NC Board Full Approval", "100% NCLEX, First Class"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "63": {"h": ["High Point University", "#1 Regional College, South", "Official Site"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "99% are working or in grad school within 180 days, 13 points above average."], "p": ["Official-Site"], "u": "/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/ + HPU Career Outcomes, 99% within 180 days, 13 points above the national average, via /career-outcomes/"}, "64": {"h": ["HPU Cost and Aid", "$23,000+ Average Aid", "See the Full Breakdown"], "d": ["Tuition and fees are $50,628 for 2026-27. Housing and food are $20,801.", "The average aid package is more than $23,000. See every line item before you apply."], "p": ["Tuition"], "u": "/admissions/tuition-fees/", "s": "/admissions/tuition-fees/"}, "65": {"h": ["HPU Official Site", "#1 Regional College, South", "99% Placed in 180 Days"], "d": ["U.S. News ranks HPU the #1 Best Regional College in the South, 14 years running.", "99% are working or in grad school within 180 days, 13 points above average."], "p": ["Official-Site"], "u": "/", "s": "U.S. News & World Report 2026 edition, via /academic-excellence/national-rankings-awards/ + HPU Career Outcomes, 99% within 180 days, 13 points above the national average, via /career-outcomes/"}, "66": {"h": ["HPU Acceptance Rate", "68% Acceptance Rate", "3.52 Average GPA"], "d": ["High Point admitted 68% of applicants to the Class of 2029, its most selective yet.", "Average GPA 3.52 and average SAT 1280. Test optional. See the full profile."], "p": ["Admissions"], "u": "/academic-excellence/admissions-profile/", "s": "HPU Admissions Profile, Class of 2029, via /academic-excellence/admissions-profile/"}, "67": {"h": ["HPU Tuition 2026-27", "$23,000+ Average Aid", "See the Full Breakdown"], "d": ["Tuition and fees are $50,628 for 2026-27. Housing and food are $20,801.", "Tutoring, printing, parking, laundry and airport transportation are included."], "p": ["Tuition"], "u": "/admissions/tuition-fees/", "s": "/admissions/tuition-fees/"}, "68": {"h": ["HPU Admission Details", "Test Optional Admissions", "Nov 15 Priority Deadline"], "d": ["Test optional. Early Decision closes Nov 1 and Early Action closes Nov 15, 2026.", "Your admission application is also your scholarship application. No extra essay."], "p": ["Admissions"], "u": "/admissions/", "s": "/admissions/; /admissions/scholarships-and-grants/"}, "69": {"h": ["Pre-PA Advising at HPU", "Accepted at Duke and Wake", "Two Named Advisors"], "d": ["HPU students have been accepted to PA programs at Duke, Wake Forest and Elon.", "HPU also runs its own M.S. in Physician Assistant Studies. Start with pre-PA advising."], "p": ["Pre-PA"], "u": "/preprofessionalprograms/physician-assistant/", "s": "/preprofessionalprograms/physician-assistant/", "w": "Most searchers here are researching the job, not a degree. Expect a weak click."}, "70": {"h": ["Study Interior Design", "CIDA-Accredited Program", "NCIDQ Exam Eligible"], "d": ["The B.S. in Interior Design is accredited by the Council for Interior Design.", "All 20 job-seeking graduates in the Class of 2023 were employed or interning."], "p": ["Interior-Dsgn"], "u": "/interiordesign/", "s": "/interiordesign/", "w": "Most of this volume is homeowners looking for a decorator, not students."}, "71": {"h": ["Nursing College in NC", "NC Board Full Approval", "Four-Year Traditional BSN"], "d": ["A four-year, on-campus BSN in High Point, within 90 minutes of NC's five largest cities.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure. This term also skews to working nurses seeking RN-to-BSN, which HPU does not offer."}, "72": {"h": ["Business Admin Degree", "Earn a 4+1 MBA", "Trade in the Tilley Room"], "d": ["1,500 students in the Phillips School of Business. Finish an MBA in a fifth year.", "Truist Leadership certification, a real-money investment club and Furniture Market."], "p": ["Business"], "u": "/businessadministration", "s": "/businessadministration/", "w": "$14.11 a click. 'top undergraduate business schools' reaches the same students at $2.61."}, "73": {"h": ["Health Sciences at HPU", "$350M in Health Facilities", "Six Health Programs"], "d": ["HPU has invested $350 million in health care programs and science facilities.", "Explore nursing, exercise science, athletic training, PA studies, PT and pharmacy."], "p": ["Health-Sci"], "u": "/health-sciences/", "s": "/nursing/ ($350M figure)", "w": "HPU has no undergraduate Healthcare Administration major. This term is dominated by online master's programs. Do not run without a matching program page."}, "74": {"h": ["Criminal Justice Degree", "9,000 Sq Ft Crime Lab", "Work a Real Crime Scene"], "d": ["A 9,000 sq ft learning lab with an evidence room and a working courtroom.", "Process mock crime scenes and sit in on real Guilford County felony trials."], "p": ["Criminal-Just"], "u": "/criminaljustice/", "s": "/criminaljustice/", "w": "$14.28 a click. 'best colleges for criminal justice' reaches the same students at $3.58."}, "75": {"h": ["Business Degrees", "Earn a 4+1 MBA", "1,500-Student B-School"], "d": ["1,500 students in the Phillips School of Business. Finish an MBA in a fifth year.", "Majors in accounting, finance, entrepreneurship, international business and sales."], "p": ["Business"], "u": "/businessadministration", "s": "/businessadministration/", "w": "Very broad. Mixes in online and graduate seekers."}, "76": {"h": ["Cybersecurity at HPU", "ABET-Accredited B.S.", "Cybersecurity Lab"], "d": ["The B.S. in Computer Science is accredited by the CAC Accreditation Commission of ABET.", "Add a cybersecurity concentration with its own dedicated lab. Four years, on campus."], "p": ["Comp-Sci"], "u": "/computerscience", "s": "/computerscience/", "w": "HPU offers a cybersecurity concentration, not a standalone cybersecurity degree. This term is dominated by for-profit online schools."}, "77": {"h": ["Best Nursing Schools", "NC Board Full Approval", "100% NCLEX, First Class"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The 2024 inaugural class posted a 100% NCLEX-RN pass rate. 50,000 sq ft labs."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "78": {"h": ["Top Nursing Programs", "NC Board Full Approval", "14 Patient Simulators"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "79": {"h": ["Best BSN Programs", "NC Board Full Approval", "Four-Year Traditional BSN"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing", "BSN"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "80": {"h": ["Traditional BSN Program", "Four Years, On Campus", "NC Board Full Approval"], "d": ["A four-year, on-campus BSN with full approval from the NC Board of Nursing.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing", "BSN"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "81": {"h": ["BSN Programs", "NC Board Full Approval", "100% NCLEX, First Class"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing", "BSN"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "82": {"h": ["Nursing Colleges", "NC Board Full Approval", "50,000 Sq Ft Nursing Labs"], "d": ["The BSN holds full approval from the North Carolina Board of Nursing, June 2024.", "A 16-bed skills lab, 14 simulators and three high-fidelity simulation suites."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure."}, "83": {"h": ["Best Colleges for Pre-Med", "Three Pre-Med Advisors", "Any Major, Med Ready"], "d": ["Three faculty advisors across biology, health sciences and psychology guide you.", "Students have been accepted to Creighton, VCOM, LECOM and Oakland University."], "p": ["Pre-Med"], "u": "/preprofessionalprograms/medicine/", "s": "/preprofessionalprograms/medicine/", "w": "The page supports no acceptance rate. Do not add one."}, "84": {"h": ["B.S. in Mathematics", "Teach as an Undergrad", "Research, Not Just Proofs"], "d": ["Undergraduates work as student instructors and start research early in the sequence.", "Graduates have gone on to Ph.D. programs including mathematics at Clemson."], "p": ["Mathematics"], "u": "/mathematics/", "s": "/mathematics/", "w": "Page cites job growth 'through 2022'. Stale. Fix before this ad runs."}, "85": {"h": ["Chemistry Major", "Dreyfus Award Faculty", "Present at ACS National"], "d": ["A faculty member won the Henry Dreyfus Teacher-Scholar Award, 1 of 8 nationally.", "Present at the ACS National Meeting. Recent grads work at KBI Biopharma and RPM."], "p": ["Chemistry"], "u": "/chemistry", "s": "/chemistry/; Dreyfus award via rankings page"}, "86": {"h": ["Mechatronics Degree", "Three Fields, One Degree", "Build Robots, Not Slides"], "d": ["Mechanical engineering, electrical engineering and computer science in one degree.", "A two-semester senior design sequence and 131 credits. Few schools offer this."], "p": ["Mechatronics"], "u": "/mechatronics/", "s": "/mechatronics/", "w": "Do NOT say ABET-accredited. The page states ABET criteria, not accreditation."}, "87": {"h": ["Best Colleges for Music", "24 Ensembles to Join", "$5,000 Marching Panthers"], "d": ["Fourteen instrumental and six vocal ensembles, plus four student-led groups.", "HPU hosts an annual international piano competition. Audition scholarships available."], "p": ["Music"], "u": "/music/", "s": "/music/; scholarship amounts from /admissions/scholarships-and-grants/"}, "88": {"h": ["Intl Business Degree", "Graduate Bilingual", "18 Exchange Partners"], "d": ["The major requires in-depth study of Chinese, French, Italian or Spanish.", "Eighteen partner universities abroad. Recent grads went to Goldman Sachs and BNY."], "p": ["Intl-Business"], "u": "/internationalbusiness/", "s": "/internationalbusiness/", "w": "No business accreditation claim. HPU holds no AACSB or ACBSP."}, "89": {"h": ["Best Colleges for Dance", "No Audition Required", "Dance Classes of 10"], "d": ["You do not have to audition to declare the dance major. Average class size is 10.", "Four mainstage productions and two dance concerts a year, choreographed by students."], "p": ["Dance"], "u": "/dance", "s": "/dance/"}, "90": {"h": ["Sociology Major", "Write a Senior Thesis", "Study Human Osteology"], "d": ["A two-part senior thesis and a research practicum are built into the major.", "Course work in visual sociology, human osteology and the anthropology of religion."], "p": ["Sociology"], "u": "/sociology/", "s": "/sociology/"}, "91": {"h": ["Nursing School in NC", "NC Board Full Approval", "Four-Year Traditional BSN"], "d": ["A four-year, on-campus BSN with full approval from the NC Board of Nursing.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "Never use accredited, nationally accredited, fully accredited, direct admit or guaranteed admission. The BSN is pursuing CCNE accreditation. Always name the inaugural 2024 cohort with the NCLEX figure. Very broad term. Mixes in online and accelerated seekers HPU cannot serve."}, "92": {"h": ["Traditional BSN in NC", "Four Years, On Campus", "NC Board Full Approval"], "d": ["HPU offers a four-year traditional BSN, not an accelerated or second-degree track.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing", "BSN"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "DO NOT RUN as written against this query. HPU has no accelerated nursing program. Bidding on it invites a misrepresentation complaint under 34 CFR 668.72. Leave unchecked."}, "93": {"h": ["Traditional BSN in NC", "Four Years, On Campus", "NC Board Full Approval"], "d": ["HPU offers a four-year traditional BSN. Admission is by progression, not direct entry.", "The inaugural class of 2024 posted a 100% first-time NCLEX-RN pass rate."], "p": ["Nursing", "BSN"], "u": "/nursing/", "s": "/nursing/ NCBON approval statement; NCLEX cohort via rankings page", "w": "DO NOT RUN. HPU has no direct-entry BSN. Advertising against this query would be misleading. Leave unchecked."}};
+const SITELINKS=[
+  ['Request Info','https://discover.highpoint.edu/register/inquiry'],
+  ['Visit Campus','https://www.highpoint.edu/admissions/experience-high-point-university/'],
+  ['Cost &amp; Aid','https://www.highpoint.edu/admissions/tuition-fees/'],
+  ['Apply','https://www.highpoint.edu/admissions/apply/']];
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function cLen(t,max){const n=t.length;return `<span class="cnt${n>max-4?' near':''}">${n}/${max}</span>`;}
+function adPrev(id){
+  const r=POOL.find(x=>x.id===id), a=AD[id];
+  if(!a) return;
+  document.getElementById('mdTerm').textContent='\u201c'+r.k+'\u201d';
+  const path='www.highpoint.edu'+(a.p.length?' \u203a '+a.p.join(' \u203a '):'');
+  const full='https://www.highpoint.edu'+a.u;
+  document.getElementById('mdBody').innerHTML=`
+  <div class="serp">
+    <div class="gTop">
+      <div class="gLogo"><span class="b">G</span><span class="r">o</span><span class="y">o</span><span class="b">g</span><span class="g">l</span><span class="r">e</span></div>
+      <div class="gBar">${esc(r.k)}<svg class=\"mag\" width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"M20 20l-4.6-4.6\"/></svg></div>
+    </div>
+    <div class="gTabs"><span class="act">All</span><span>Images</span><span>Videos</span><span>News</span><span>Shopping</span><span>More</span></div>
+    <div class="adBox">
+      <div class="spon">Sponsored</div>
+      <div class="advRow">
+        <a class="advLink" href="${full}" target="_blank" rel="noopener"><div class="fav"><img src="https://www.highpoint.edu/wp-content/themes/hpu/assets/frontend/images/icons/favicon_192x192.png" alt="" width="20" height="20" onerror=\"this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsSAAALEgHS3X78AAAGY0lEQVRYhc2XXUxb5xnHf0ZOwJFdG9SLcawsJmam0pziga0IRcBBSpsuIrF7lRbUYrYKRCMRPNM7VIjUXUyJg0EtAqIOZ2ogVS8Cg4vRXsR2FWWVgTkL1QSah7uKgyZNxsQIQ2Ll7MIfJV5KSats/UtHOnrPe56P//PxPq9ClmX2g5bjA7UancoNmB8+SGkrT5RplMqCQoBU6tHO3dsriQMHlRvAYiKe9Fz74sLn+5Gr+C4Dzh271H1IXdhZc6ricKPThmAo2XO/FI0x4wtxZ3bp663NncGP771zec8fZFl+4uM6++GLb1j7I9f7A/L3xfX+gPyGtT/iOvvhi9+m54mLnaevujpODsfvr299b+VZ3F/fkjtODsc7T1917cuAt2rff7en+aOdH6w5Dz3NH+28Vfv+u3sa0Hn6qutZKN9tRD4Tj8W84+Rw/GmFPm2YOk4Ox3fnhDKbjP+W7t/84LN2bTaT16LrACyFV9mMJwGY80dyybsQ+OZ9Tvbsmei78btP3tSef2nkJmAE0gacO3ap2/7r40fXojEafnEFgGrRCIBGp8Jk0QPwXLGKpq46AEoNJaxFY1y+MLlv5Vl5rzRXHT137FL3x/feuVwAcEhd2NnUVYfJoqd37DU0OhVur4ORW29jqhRAlmnrfRmTRc/99SS/sf+e8f4AS2GJUkMJUjTGvD/CvD9CIsPWXmjqquOQurATQNlyfKD2xC9fOJz9eMZpA6BdHOLW+nuMXvyUxhYbC4EIm/EkUjTG5sY2Z5w2ul/1IUVjBKYWc4zN+yM0tthwe+1odKpvNaLmVMXhluMDtUqNTuVuzCjNIitsObwKgMkiIEVjiA4zfxwLZdb0jIfdyLLMcljK/VsxqafPOYF/cjHnzJPQ6LTx1ztfuZWAOb+9LoclTBaBpYzg5bCEYChGWonhn7xHVb0RKRrjbNlv/0twvd1Ms6uO4d5ZNDpVzgmApbCUC5HoMAOYlQ8fpLT5QpbDq1SL5bmfZ66FqKpPs7K5sU2FRchVxusXajnjtLEUlrjYeoNEPIlap0KhgImBIBqdCo1ORamhBGtDORUWgXFvkM14kocPUlpl5YkyTb4Bc/4Iza46rvcHMVUKjAbOI0VjJNaTtDcMYbLoc+yIjmOgUDCfKVHBUIJaW0Rb7ymkaAx9WQlqnYrx/iBSNEa9/eck4kmqxXJSqUeaguyRms+AyaJnIRBJx9obZLRvlqUMIxUWIceOp2uSJouHmWshTJUCbq+d5bBEe8MQGp0K/+QiQqZSABQKBcthiVJDMUplQaEyX/lo3ywKhYLE+lbGo2IqLAKiw8xI7+xj8Sw9UozoMNPotFFh0aNQQGBqEWklrcxkEeh+dYzXu+pYCKSrY9oX4meVQu5YL0ilHu1khfY5b+Cf+pLpaA+J+DZtvS8jOswshSVMlQKeyVamoz05dqrFcoSyEgJTi1xsvUGbOIQUXUfKdFGFQgGk233WmbVoDGumylKpRzsFd2+vJBLxJG3iEDPXQogOM+PeIPOBCPOBCB7XFBPeIFaFG6vCTZPFk1ee68gyDN/qoKreiFVMV0hVvZG1aIxq0Zhr69ViOVI0RrVYDsDd2ysJ5YGDyg23Y+x5gKp6I0t/WaXCIgDQ2PLNBJSIJ+lzTuD22vFPLqLWFiEYSlgIRLCKxtx7lp3GFhtz/ghnnDbm/X8HoNRQzLw/gulmWv6Bg8oNJbDY53vNuNeoNe0LccU1xZWpX6U9+2oda0N5rmLc/fbcXrW2KEd3U1cdsizTZPFQeqSYzY1t1NoiNDpVNikXlYl40jPjC9nb+k49Ufm4N8gV1xQAbeJQbj3bF0qPFGPKMAawfFdCrS1i9OKnzPkjLIdX2dzY5vLNVia8wXTZAjO+EIl40qOQZZnWmsF/jt3pPEwesodMlh2TRdizv7sdYzxXrKLmlReI/u1faUZ0KkSHmcDUl4z0/onpaA8anYrWmsGvx+50/lQJsLW5MzjuDV7KHrVZCIYSBOfeU/BjBnjttItDTPtCmCx6rGI6XDcGPucnR4oZ9b+NRqdi3Btka3NnEHaN5W/avJEPPms/upeH+8W0L8RapvGodSqsojE3UyTiSc6/NPKPP4S60jH8oSPZ0yJ/JPvxDKXZ5/86lsvyj+BiIu/Kif/F1eyZXk5lWX7P9+cLo3vt/04DsnhW1/P/AO/a8ZcGzP6wAAAAAElFTkSuQmCC'\"></div><div style="min-width:0"><div class="advName">High Point University</div><div class="advUrl">${esc(path)}</div></div></a>
+        <div class="dots">&#8942;</div>
+      </div>
+      <a class="adH" href="${full}" target="_blank" rel="noopener">${a.h.map(esc).join(' <span class="sep">|</span> ')}</a>
+      <div class="adD">${esc(a.d.join(' '))}</div>
+      <div class="adLinks">${SITELINKS.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener">${l[0]}</a>`).join('')}</div>
+    </div>
+    <div class="rule"></div>
+    ${[0,1,2].map(()=>`<div class="skRes">
+      <div class="skRow"><div class="sk skDot"></div><div style="flex:1"><div class="sk skLine" style="width:34%;margin:0 0 5px"></div><div class="sk skLine" style="width:46%;margin:0"></div></div></div>
+      <div class="sk skTitle" style="width:72%"></div>
+      <div class="sk skLine" style="width:100%"></div>
+      <div class="sk skLine" style="width:88%"></div>
+    </div>`).join('')}
+    <div class="skNote">Everything below the ad is a placeholder for the unpaid results</div>
+  </div>
+
+  <div class="mdGrid">
+    <div class="mdCard"><h4>Headlines &middot; 30 character limit</h4><ol>
+      ${a.h.map(h=>`<li>${esc(h)}${cLen(h,30)}</li>`).join('')}
+    </ol></div>
+    <div class="mdCard"><h4>Descriptions &middot; 90 character limit</h4><ol>
+      ${a.d.map(d=>`<li>${esc(d)}${cLen(d,90)}</li>`).join('')}
+    </ol></div>
+    <div class="mdCard"><h4>Where the click lands</h4>
+      <p class="mdSrc"><a href="${full}" target="_blank" rel="noopener">${esc(full)}</a></p></div>
+    <div class="mdCard"><h4>Where the claim comes from</h4>
+      <p class="mdSrc">${esc(a.s)}</p></div>
+  </div>
+  ${a.w?`<div class="mdWarn"><b>Read before this ad runs</b>${esc(a.w)}</div>`:''}
+  <div class="mdFoot">
+    <button class="pri" onclick="adCopy(${id})">Copy this ad</button>
+    <button onclick="adClose()">Close</button>
+  </div>`;
+  document.getElementById('mdBack').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function adClose(){document.getElementById('mdBack').classList.remove('on');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')adClose();});
+function adCopy(id){
+  const r=POOL.find(x=>x.id===id),a=AD[id];
+  const t=['Search term: '+r.k,'Final URL: https://www.highpoint.edu'+a.u,
+    'Display path: www.highpoint.edu/'+a.p.join('/'),'',
+    ...a.h.map((h,i)=>`Headline ${i+1} (${h.length}/30): ${h}`),'',
+    ...a.d.map((d,i)=>`Description ${i+1} (${d.length}/90): ${d}`),'',
+    'Source: '+a.s, a.w?'CAUTION: '+a.w:''].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=event.target;const o=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=o,1400);});
+}
+function compBadge(c){const m={Low:'lo',Medium:'md',High:'hi'};return `<span class="pill ${m[c]||'lo'}">${c}</span>`;}
+
+function render(){
+  const cats=[...new Set(POOL.map(r=>r.c))];
+  document.getElementById('body').innerHTML=cats.map(c=>{
+    const rows=POOL.filter(r=>r.c===c);
+    const sel=rows.filter(r=>st[r.id].on);
+    let ci=0,cc=0,cs=0;
+    sel.forEach(r=>{const x=calc(r,st[r.id].share);ci+=x.im;cc+=x.cl;cs+=x.sp;});
+    return `<div class="chead"><h2>${c}</h2><div class="cmeta">${rows.length} available ·
+      <b>${sel.length} selected</b> · ${num(ci)} impr · ${num(cc)} clicks · <b>${money(cs)}</b></div></div>
+    ${CATAUD[c]?`<p class="catAud">${CATAUD[c]}</p>`:''}
+    <div class="tw"><table><thead><tr>
+      <th style="width:38px"></th><th>Search term</th><th class="n">Searches</th>
+      <th>Competition</th><th style="width:90px">Share</th><th class="n">Impressions</th><th class="n">Clicks</th>
+      <th class="n">Spend</th><th class="n">Cost per click</th><th>HPU program</th><th>Note</th></tr></thead><tbody>
+    ${rows.map(r=>{const s=st[r.id];const x=calc(r,s.share);
+      return `<tr class="${s.on?'on':'dim'}">
+        <td><input type="checkbox" ${s.on?'checked':''} onchange="tog(${r.id},this.checked)"></td>
+        <td class="kw">${AD[r.id]?`<a class="kwLink" href="#" title="Preview the ad for this search" onclick="adPrev(${r.id});return false;">${r.k}</a>`:r.k}${r.b?' <span class="pill br">brand</span>':''}</td>
+        <td class="n">${num(r.v)}</td>
+        <td>${compBadge(r.comp)}</td>
+        <td class="shareCell"><input type="number" class="shareIn" list="shareOpts" min="1" max="100" step="1"
+          value="${Math.round(s.share*100)}" onchange="shr(${r.id},this.value)" onfocus="this.select()"><span class="pc">%</span></td>
+        <td class="n">${s.on?num(x.im):'—'}</td><td class="n">${s.on?num(x.cl):'—'}</td>
+        <td class="n">${s.on?money(x.sp):'—'}</td>
+        <td class="n">$${priceAt(r,s.share).toFixed(2)}${r.hi!=null&&r.hi>r.lo?`<span class="rng">of $${r.lo.toFixed(2)}&ndash;$${r.hi.toFixed(2)}</span>`:''}</td>
+        <td class="prog">${r.p&&r.p!=='—'?`<a href="https://www.highpoint.edu${r.u}" target="_blank" rel="noopener">${r.p}</a>`:'<span style="color:var(--ink3)">—</span>'}</td>
+        <td class="note">${r.n||''}</td></tr>`;}).join('')}
+    </tbody></table></div>`;}).join('');
+  totals();
+}
+function totals(){
+  let sp=0,im=0,cl=0,t=0,bc=0,bs=0;
+  POOL.forEach(r=>{const s=st[r.id];if(!s.on)return;const x=calc(r,s.share);
+    sp+=x.sp;im+=x.im;cl+=x.cl;t++;if(r.b){bc+=x.cl;bs+=x.sp;}});
+  document.getElementById('sSpend').textContent=money(sp);
+  document.getElementById('sImpr').textContent=num(im);
+  document.getElementById('sClicks').textContent=num(cl);
+  document.getElementById('sCpc').textContent=cl?'$'+(sp/cl).toFixed(2):'$0.00';
+  document.getElementById('sTerms').textContent=t;
+  document.getElementById('bidNote').textContent=BIDNOTE[String(CURVE)];
+  const pct=Math.min(sp/BUDGET*100,100);
+  const bar=document.getElementById('bar');
+  bar.style.width=pct+'%'; bar.className=sp>BUDGET?'over':'';
+  document.getElementById('barPct').textContent=Math.round(sp/BUDGET*100)+'% of budget';
+  document.getElementById('barLeft').textContent=sp>BUDGET?money(sp-BUDGET)+' over':money(BUDGET-sp)+' left';
+  const wo=document.getElementById('wOver');
+  wo.className='warn over'+(sp>BUDGET?' on':'');
+  wo.textContent=sp>BUDGET?`Over budget by ${money(sp-BUDGET)}. Lower a share percentage or uncheck a term.`:'';
+  const wb=document.getElementById('wBrand');
+  const bp=cl?bc/cl*100:0;
+  wb.className='warn brand'+(bp>40?' on':'');
+  wb.textContent=bp>40?`Searches for our own name are ${Math.round(bp)}% of total clicks (${num(bc)} of ${num(cl)}) for ${money(bs)}. These are people already looking for us, so they inflate the click count without reaching anyone new.`:'';
+}
+const BIDNOTE={'2.2':'Clicks stay cheap until we chase the last few searches.',
+ '1.5':'Price rises steadily as we go after more of a search. Best guess.',
+ '1':'Price rises in step with share from the very start. Conservative.'};
+function setBid(b){CURVE=b;document.querySelectorAll('.bidBtn').forEach(x=>x.classList.toggle('on',x.dataset.b===String(b)));render();}
+function tog(id,v){st[id].on=v;render();}
+function shr(id,v){let p=parseFloat(v);if(isNaN(p))p=90;p=Math.min(100,Math.max(1,p));st[id].share=p/100;render();}
+function preset(k){
+  POOL.forEach(r=>{
+    if(k==='rec'){st[r.id]={on:!!r.r,share:r.s};}
+    else if(k==='none'){st[r.id].on=false;}
+    else if(k==='nb'){st[r.id].on=!!r.r&&!r.b;}
+  });render();
+}
+function csv(){
+  const H=['Category','Search term','HPU program','Landing page','Branded','Searches per month','Cost per click',
+           'Competition','Cost per click low','Cost per click high','Impression share','Impressions','Clicks','Spend'];
+  const rows=POOL.filter(r=>st[r.id].on).map(r=>{const s=st[r.id];const x=calc(r,s.share);
+    return [r.c,r.k,r.p||'',r.u?'https://www.highpoint.edu'+r.u:'',r.b?'Yes':'No',r.v,priceAt(r,s.share).toFixed(2),r.comp,
+            r.lo.toFixed(2),r.hi!=null?r.hi.toFixed(2):'',Math.round(s.share*100)+'%',x.im,x.cl,x.sp.toFixed(0)];});
+  let sp=0,im=0,cl=0;rows.forEach(r=>{sp+=+r[13];im+=+r[11];cl+=+r[12];});
+  rows.push([]);rows.push(['TOTAL','','','','','','','','','','',im,cl,sp.toFixed(0)]);
+  rows.push(['Price model',CURVE==2.2?'best case':(CURVE==1.5?'likely':'cautious'),'cost per click rises as impression share rises']);
+  const clean=v=>String(v??'').replace(/[\u00b7\u2022]/g,'-').replace(/[\u2013\u2014]/g,'-')
+      .replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/\s+/g,' ').trim();
+  const esc=v=>'"'+clean(v).replace(/"/g,'""')+'"';
+  return [H,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
+}
+function dl(){
+  const b=new Blob(['\ufeff'+csv()],{type:'text/csv;charset=utf-8;'});
+  const u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u;a.download='hpu-keyword-plan.csv';document.body.appendChild(a);a.click();
+  document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(u),1500);
+}
+function copyCsv(){
+  const t=csv();
+  navigator.clipboard.writeText(t).then(()=>alert('Copied. Paste into Excel or Sheets.'),
+    ()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);
+      ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Copied.');});
+}
+render();
+</script>
